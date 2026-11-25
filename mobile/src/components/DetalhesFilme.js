@@ -7,9 +7,10 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { formatarNota } from "../utils/formatacao";
+import { formatarNota, formatarDuracao } from "../utils/formatacao";
 import backendClient from "../utils/backendClient";
 import Carregando from "./Carregando";
+import Provedores from "./Provedores";
 
 export default function DetalhesFilme({ id, onVoltar }) {
   const [filme, setFilme] = useState(null);
@@ -40,6 +41,9 @@ export default function DetalhesFilme({ id, onVoltar }) {
         .filter(Boolean)
         .join(" · ")
     : "";
+
+    const semDisponibilidade = filme && filme.ondeAssistir.assinatura.length === 0 && filme.ondeAssistir.compra.length === 0 && filme.ondeAssistir.aluguel.length === 0;
+
 
   return (
     <View style={estilos.container}>
@@ -81,6 +85,19 @@ export default function DetalhesFilme({ id, onVoltar }) {
               {filme.sinopse || "Sinopse indisponível."}
             </Text>
           </View>
+
+          <View style={estilos.secao}>
+            <Text style={estilos.tituloSecao}>Onde assistir no Brasil</Text>
+            {semDisponibilidade ? (
+              <Text style={estilos.sinopse}>Este filme não esta disponivel em nenhum serviço no Brasil no momento.</Text>
+            ) : (
+                <><Provedores titulo="Assinatura" provedores={filme.ondeAssistir.assinatura} />
+                <Provedores titulo="Aluguel" provedores={filme.ondeAssistir.aluguel} />
+                <Provedores titulo="Compra" provedores={filme.ondeAssistir.compra} />
+                </>
+            )}
+            <Text style={estilos.justwatch}>Dados de disponibilidade: JustWatch</Text>
+          </View>
         </ScrollView>
       )}
     </View>
@@ -89,87 +106,93 @@ export default function DetalhesFilme({ id, onVoltar }) {
 
 const estilos = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   botaoVoltar: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 10
   },
   textoVoltar: {
-    color: "#E0473C",
+    color: '#E0473C',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold'
   },
   erro: {
-    color: "#FF6B6B",
-    textAlign: "center",
+    color: '#FF6B6B',
+    textAlign: 'center',
     marginTop: 24,
     paddingHorizontal: 16,
-    fontSize: 15,
+    fontSize: 15
   },
   scroll: {
-    flex: 1,
+    flex: 1
   },
   fundo: {
-    width: "100%",
-    height: 180,
+    width: '100%',
+    height: 180
   },
   cabecalhoFilme: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 16,
-    gap: 14,
+    gap: 14
   },
   poster: {
     width: 100,
     height: 150,
-    borderRadius: 8,
+    borderRadius: 8
   },
   semPoster: {
     width: 100,
     height: 150,
     borderRadius: 8,
-    backgroundColor: "#3A3F52",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 6,
+    backgroundColor: '#3A3F52',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 6
   },
   textoSemPoster: {
-    color: "#A0A6B8",
+    color: '#A0A6B8',
     fontSize: 12,
-    textAlign: "center",
+    textAlign: 'center'
   },
   dadosPrincipais: {
     flex: 1,
-    justifyContent: "center",
-    gap: 6,
+    justifyContent: 'center',
+    gap: 6
   },
   titulo: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: 'bold'
   },
   informacoes: {
-    color: "#A0A6B8",
-    fontSize: 14,
+    color: '#A0A6B8',
+    fontSize: 14
   },
   nota: {
-    color: "#F5C518",
+    color: '#F5C518',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold'
   },
   secao: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingBottom: 16
   },
   tituloSecao: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 6,
+    fontWeight: 'bold',
+    marginBottom: 8
   },
   sinopse: {
-    color: "#D0D4E0",
+    color: '#D0D4E0',
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 20
   },
-});
+  justwatch: {
+    color: '#8A90A2',
+    fontSize: 11,
+    fontStyle: 'italic',
+    marginTop: 8
+  }
+})

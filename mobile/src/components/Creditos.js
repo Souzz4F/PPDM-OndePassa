@@ -4,7 +4,7 @@ export default function Creditos() {
   return (
     <View style={estilos.container}>
       <Text style={estilos.texto}>
-        Este produto usando a API do TMDB, mas não é endossado nem certificado
+        Este produto usa a API do TMDB, mas não é endossado nem certificado
         pelo TMDB.
       </Text>
     </View>

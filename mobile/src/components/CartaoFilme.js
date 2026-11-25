@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { formatarNota } from "../utils/formatacao";
 
 export default function CartaoFilme({ titulo, ano, nota, poster, onSelecionar }) {
@@ -12,7 +12,7 @@ export default function CartaoFilme({ titulo, ano, nota, poster, onSelecionar })
         </View>
       )}
       <View style={estilos.info}>
-        <Text style={estilos.titulo} numberofLines={2}>
+        <Text style={estilos.titulo} numberOfLines={2}>
           {titulo}
         </Text>
         {ano && <Text style={estilos.ano}>{ano}</Text>}

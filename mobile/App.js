@@ -1,5 +1,5 @@
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import { useState, useEffect } from "react";
 
 import Cabecalho from "./src/components/Cabecalho";
@@ -14,10 +14,11 @@ export default function App() {
   const [emAlta, setEmAlta] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
-  
+
   const [termo, setTermo] = useState("");
   const [termoBuscado, setTermoBuscado] = useState("");
   const [resultados, setResultados] = useState(null);
+  const [buscando, setBuscando] = useState(false);
 
   const [filmeSelecionado, setFilmeSelecionado] = useState(null);
 
@@ -35,68 +36,128 @@ export default function App() {
       }
     }
     carregarEmAlta();
-  }, [])
+  }, []);
 
-  async function buscarFilmes() {
-
-    setCarregando(true);
-    try{
-      const resposta = await backendClient.get('/filmes', {
-        params: {
-          busca: termo}})
-          setResultados(resposta.data)
-          setTermoBuscado(termo)
-          setErro(null)
-    } catch (erro) {
-      setErro(erro.response?.data?.mensagem ||
-        "Não foi possível buscar os filmes.",
-      )
-    } finally {
-      setCarregando(false);
+  useEffect(() => {
+    const termoLimpo = termo.trim();
+    if (termoLimpo.length === 0) {
+      setResultados(null);
+      setErro(null);
+      setBuscando(false);
+      return;
     }
+
+    if (termoLimpo.length < 3) {
+      setBuscando(false);
+      return;
+    }
+
+    let ativa = true;
+
+    const timer = setTimeout(async () => {
+      setBuscando(true);
+
+      try {
+        const resposta = await backendClient.get("/filmes", {
+          params: {
+            busca: termoLimpo,
+          },
+        });
+        if (ativa) {
+          setResultados(resposta.data);
+          setTermoBuscado(termo);
+          setErro(null);
+        }
+      } catch (erro) {
+        if (ativa) {
+          setErro(
+            erro.response?.data?.mensagem ||
+              "Não foi possível buscar os filmes.",
+          );
+        }
+      } finally {
+        if (ativa) {
+          setBuscando(false);
+        }
+      }
+    }, 600);
+
+    return () => {
+      ativa = false;
+      clearTimeout(timer);
+      setBuscando(false);
+    };
+  }, [termo]);
+
+  function limparBusca() {
+    setTermo("");
+    setResultados(null);
+    setErro(null);
   }
 
-  function limparBusca(){
-    setTermo("")
-    setResultados(null)
-    setErro(null)
-  }
+  const termoLimpo = termo.trim()
 
-  function renderizarLista(){
-    if (resultados === null){
-      return (<ListaFilmes titulo="Em alta nesta semana" filmes={emAlta} onSelecionar={setFilmeSelecionado} />)
+  function renderizarLista() {
+    if (resultados === null) {
+      return (
+        <ListaFilmes
+          titulo="Em alta nesta semana"
+          filmes={emAlta}
+          onSelecionar={setFilmeSelecionado}
+        />
+      );
     }
-    if (resultados.length === 0){
-      return (<Text style={estilos.mensagemVazia}>Nenhum filme encontrado para "{termoBuscado}".</Text>)
+    if (resultados.length === 0) {
+      return (
+        <Text style={estilos.mensagemVazia}>
+          Nenhum filme encontrado para "{termoBuscado}".
+        </Text>
+      );
     }
-    return (<ListaFilmes titulo={`Resultados para "${termoBuscado}"`} filmes={resultados} onSelecionar={setFilmeSelecionado} />)
+    return (
+      <ListaFilmes
+        titulo={`Resultados para "${termoBuscado}"`}
+        filmes={resultados}
+        onSelecionar={setFilmeSelecionado}
+      />
+    );
   }
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={estilos.tela}>
         <Cabecalho />
-        {filmeSelecionado !== null ? (<DetalhesFilme id={filmeSelecionado} onVoltar={() => setFilmeSelecionado(null)} />) :(<>
-        <Busca
-        termo={termo}
-        onTermoAlterado={setTermo}
-        onBuscar={buscarFilmes}
-        onLimpar={limparBusca}
-        />
-        <View style={estilos.conteudo}>
-          {carregando ? (
-            <Carregando mensagem={ termo || resultados !== null ? 'procurando filmes...' : 'Buscando os filmes em alta...' } />
-          ) : erro ? (
-            <Text style={estilos.erro}>{erro}</Text>
-          ) : (
-            renderizarLista()
-          )}
-        </View>
-        </>)}
+        {filmeSelecionado !== null ? (
+          <DetalhesFilme
+            id={filmeSelecionado}
+            onVoltar={() => setFilmeSelecionado(null)}
+          />
+        ) : (
+          <>
+            <Busca
+              termo={termo}
+              onTermoAlterado={setTermo}
+              onLimpar={limparBusca}
+              buscando={buscando}
+            />
+            {termoLimpo.length > 0 && termoLimpo.length < 3 && (<Text style={estilos.dica}>Digite pelo menos 3 letras.</Text>)}
+            <View style={estilos.conteudo}>
+              {carregando ? (
+                <Carregando
+                  mensagem= "Buscando os filmes em alta..."
+                />
+              ) : erro ? (
+                <Text style={estilos.erro}>{erro}</Text>
+              ) : (
+                renderizarLista()
+              )}
+            </View>
+          </>
+        )}
         <Creditos />
       </SafeAreaView>
     </SafeAreaProvider>
-  )
+  );
 }
 
 const estilos = StyleSheet.create({
@@ -106,6 +167,12 @@ const estilos = StyleSheet.create({
   },
   conteudo: {
     flex: 1
+  },
+  dica: {
+    color: '#A0A6B8',
+    fontSize: 12,
+    marginHorizontal: 16,
+    marginBottom: 8
   },
   erro: {
     color: '#FF6B6B',

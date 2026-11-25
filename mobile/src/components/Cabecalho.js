@@ -3,11 +3,11 @@ import { View, Text, StyleSheet } from "react-native";
 export default function Cabecalho({ titulo }) {
   return (
     <View style={estilos.container}>
-      <View style={estilo.linhaTitulo}>
-        <Text style={estilo.emoji}>🍿</Text>
-        <Text style={estilo.titulo}>OndePassa</Text>
+      <View style={estilos.linhaTitulo}>
+        <Text style={estilos.emoji}>🍿</Text>
+        <Text style={estilos.titulo}>OndePassa</Text>
       </View>
-      <Text style={estilo.subtitulo}>
+      <Text style={estilos.subtitulo}>
         Descubra onde assistir qualquer filme
       </Text>
     </View>

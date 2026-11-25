@@ -10,7 +10,7 @@ export default function ListaFilmes({ titulo, filmes, onSelecionar }) {
         keyExtractor={(filme) => String(filme.id)}
         renderItem={({ item }) => (
           <CartaoFilme
-            titulo={item.title}
+            titulo={item.titulo}
             ano={item.ano}
             nota={item.nota}
             poster={item.poster}
@@ -19,7 +19,7 @@ export default function ListaFilmes({ titulo, filmes, onSelecionar }) {
         )}
       />
     </View>
-  )
+  );
 }
 
 const estilos = StyleSheet.create({

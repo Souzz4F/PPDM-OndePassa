@@ -89,7 +89,7 @@ export default function DetalhesFilme({ id, onVoltar }) {
           <View style={estilos.secao}>
             <Text style={estilos.tituloSecao}>Onde assistir no Brasil</Text>
             {semDisponibilidade ? (
-              <Text style={estilos.sinopse}>Este filme não esta disponivel em nenhum serviço no Brasil no momento.</Text>
+              <Text style={estilos.sinopse}>Este filme não está disponível em nenhum serviço no Brasil no momento.</Text>
             ) : (
                 <><Provedores titulo="Assinatura" provedores={filme.ondeAssistir.assinatura} />
                 <Provedores titulo="Aluguel" provedores={filme.ondeAssistir.aluguel} />

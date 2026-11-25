@@ -1,12 +1,14 @@
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
+
 import Cabecalho from "./src/components/Cabecalho";
 import Creditos from "./src/components/Creditos";
 import Carregando from "./src/components/Carregando";
 import ListaFilmes from "./src/components/ListaFilmes";
 import backendClient from "./src/utils/backendClient";
 import Busca from "./src/components/Busca";
+import DetalhesFilme from "./src/components/DetalhesFilme";
 
 export default function App() {
   const [emAlta, setEmAlta] = useState([]);
@@ -16,6 +18,8 @@ export default function App() {
   const [termo, setTermo] = useState("");
   const [termoBuscado, setTermoBuscado] = useState("");
   const [resultados, setResultados] = useState(null);
+
+  const [filmeSelecionado, setFilmeSelecionado] = useState(null);
 
   useEffect(() => {
     async function carregarEmAlta() {
@@ -31,7 +35,7 @@ export default function App() {
       }
     }
     carregarEmAlta();
-  }, []);
+  }, [])
 
   async function buscarFilmes() {
 
@@ -60,18 +64,19 @@ export default function App() {
 
   function renderizarLista(){
     if (resultados === null){
-      return <ListaFilmes titulo="Em alta nesta semana" filmes={emAlta} />
+      return (<ListaFilmes titulo="Em alta nesta semana" filmes={emAlta} onSelecionar={setFilmeSelecionado} />)
     }
     if (resultados.length === 0){
       return (<Text style={estilos.mensagemVazia}>Nenhum filme encontrado para "{termoBuscado}".</Text>)
     }
-    return <ListaFilmes titulo={`Resultados para "${termoBuscado}"`} filmes={resultados} />
+    return (<ListaFilmes titulo={`Resultados para "${termoBuscado}"`} filmes={resultados} onSelecionar={setFilmeSelecionado} />)
   }
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={estilos.tela}>
         <Cabecalho />
+        {filmeSelecionado !== null ? (<DetalhesFilme id={filmeSelecionado} onVoltar={() => setFilmeSelecionado(null)} />) :(<>
         <Busca
         termo={termo}
         onTermoAlterado={setTermo}
@@ -87,6 +92,7 @@ export default function App() {
             renderizarLista()
           )}
         </View>
+        </>)}
         <Creditos />
       </SafeAreaView>
     </SafeAreaProvider>

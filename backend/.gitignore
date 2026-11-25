@@ -1,0 +1,5 @@
+#dependencias do npm
+node_modules
+
+#Variaveis de ambiente
+.env
